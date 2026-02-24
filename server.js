@@ -44,6 +44,20 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5500;
 
+// Render Wakeup Service
+const cron = require('node-cron');
+const axios = require('axios');
+
+cron.schedule('*/12 * * * *', async () => {
+  try {
+    const serverUrl = process.env.SERVER_URL || `http://localhost:${PORT}`;
+    await axios.get(serverUrl);
+    console.log(`Pinged server at ${serverUrl} to keep it awake`);
+  } catch (error) {
+    console.error(`Error pinging server: ${error.message}`);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });

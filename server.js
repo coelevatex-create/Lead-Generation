@@ -34,6 +34,7 @@ app.use('/api/plans', require('./routes/loanPlanRoutes'));
 app.use('/api/finance', require('./routes/financeRoutes'));
 app.use('/api/callbacks', require('./routes/callbackRoutes'));
 app.use('/api/vapi', require('./routes/vapiRoutes'));
+app.use('/api/extension', require('./routes/extensionRoutes'));
 
 app.get('/', (req, res) => {
   res.send('Loan AI CRM API is running...');
@@ -46,4 +47,15 @@ const PORT = process.env.PORT || 5500;
 
 app.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+
+  // Render keep-alive: ping every 14 minutes to prevent free-tier spin-down
+  const RENDER_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+  setInterval(async () => {
+    try {
+      const res = await fetch(RENDER_URL);
+      console.log(`[Keep-Alive] Pinged ${RENDER_URL} — Status: ${res.status}`);
+    } catch (err) {
+      console.error(`[Keep-Alive] Failed to ping ${RENDER_URL}:`, err.message);
+    }
+  }, 14 * 60 * 1000); // 14 minutes
 });

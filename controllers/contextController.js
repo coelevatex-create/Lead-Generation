@@ -12,6 +12,18 @@ const { sanitizePhone } = require('../utils/phoneUtils');
 const getLeadContext = async (req, res, next) => {
   try {
     let { phone } = req.body;
+
+    // Handle unresolved VAPI template variables (e.g. test calls from dashboard)
+    if (!phone || phone.includes('{{')) {
+      console.log(`[Context] Unresolved or missing phone: "${phone}" — returning new user context`);
+      return res.status(200).json({
+        isNewUser: true,
+        name: null,
+        loanPurpose: null,
+        context: 'First time caller (test mode).'
+      });
+    }
+
     phone = sanitizePhone(phone);
 
     if (!phone) {
